@@ -20,7 +20,7 @@ library("TraMineR")
 
 dataset <- read.csv(input_dir)
 
-sequences_matrix <- as.matrix(dataset[, c("element1", "element2", "element3", "element4", "element5", "element6", "element7")])
+sequences_matrix <- as.matrix(dataset[, c("semester_1", "semester_2", "semester_3", "semester_4", "semester_5", "semester_6", "semester_7")])
     
 sequences <- seqdef(sequences_matrix)
 

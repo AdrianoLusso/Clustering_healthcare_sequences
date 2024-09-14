@@ -1,0 +1,21 @@
+conda create --name LabIA
+conda activate LabIA
+conda install conda-forge::r-base
+cd C:\Users\Adriano\anaconda3\envs\LabIA\Scripts
+
+R.exe
+install.packages('IRkernel') --> elegir mirror 'USA (IA) [https]'
+q() --> n
+
+conda install jupyter
+R.exe 
+IRkernel::installspec()
+install.packages("TraMineR", dependencies=TRUE) --> elegir mirror 'USA (IA) [https]'
+q() --> n
+
+conda install python=3.8
+pip install numpy pandas matplotlib scikit-learn kmedoids seaborn(????)
+
+
+
+
