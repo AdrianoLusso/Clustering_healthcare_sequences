@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" version="24.7.13">
   <diagram name="Página-1" id="gpKVvN9CuKya5Epck6a0">
-    <mxGraphModel dx="1304" dy="1884" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="722" dy="1556" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -10,7 +10,7 @@
             <mxPoint x="930" y="-270" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="UAWNQgPJYfu6M1fQTLBm-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="UAWNQgPJYfu6M1fQTLBm-25" target="UAWNQgPJYfu6M1fQTLBm-49">
+        <mxCell id="UAWNQgPJYfu6M1fQTLBm-72" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="UAWNQgPJYfu6M1fQTLBm-25" target="UAWNQgPJYfu6M1fQTLBm-71">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="UAWNQgPJYfu6M1fQTLBm-25" value="app-clustering" style="whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
@@ -75,6 +75,12 @@
         </mxCell>
         <mxCell id="UAWNQgPJYfu6M1fQTLBm-70" value="Dos dimensiones de analisis: DTIC/auditoria y frontend/backend.&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp;DTIC&amp;nbsp; y auditoria. En DTIC, subiran la primera vez,&lt;div&gt;y a futuro cada vez que necesiten, los dataset que seran necesarios para aplicar&lt;/div&gt;&lt;div&gt;ML. Estos datasets deben tener una estructura predifinda entre los desarrolladores&lt;/div&gt;&lt;div&gt;y DTIC. Para cada aplicacion de la suite se necesitaran un conjunto especifico de&lt;/div&gt;&lt;div&gt;datasets. En principio, el prototipo hecho en la materia solo cuenta con una aplicacion&lt;/div&gt;&lt;/div&gt;&lt;div&gt;para la suite. Aun asi ,se la diseniara de forma modular para fomentar su&lt;/div&gt;&lt;div&gt;escalabilidad.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Desde auditoria medica, podran consumir las aplicaciones de la suite. Al elegir una aplicacion.&lt;/div&gt;&lt;div&gt;Se les pedira un conjunto de hyperparametros, propios dee cada aplicacion. En el disenio&lt;/div&gt;&lt;div&gt;dimos algunos ejemplo de hyperparametros para la aplicaciones de este prototipo.&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Al elegir los hyperparametros, podran visualizar el analisis estadistico resultante de la&lt;/div&gt;&lt;div&gt;aplicaicion.&amp;nbsp;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="1390" y="-170" width="520" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="UAWNQgPJYfu6M1fQTLBm-73" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="UAWNQgPJYfu6M1fQTLBm-71" target="UAWNQgPJYfu6M1fQTLBm-49">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="UAWNQgPJYfu6M1fQTLBm-71" value="resultados&lt;div&gt;(jsons y posiblemente algunos graficos fabricados)&lt;/div&gt;" style="whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="810" y="597.5" width="120" height="65" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
