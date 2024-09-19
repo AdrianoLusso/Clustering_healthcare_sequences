@@ -14,7 +14,7 @@ install.packages("TraMineR", dependencies=TRUE) --> elegir mirror 'USA (IA) [htt
 q() --> n
 
 conda install python=3.8
-pip install numpy pandas matplotlib scikit-learn kmedoids seaborn(????)
+pip install numpy pandas matplotlib scikit-learn kmedoids seaborn
 
 
 

@@ -5,6 +5,7 @@ from ...utils.Package import Package
 import numpy as np
 import pandas as pd
 import itertools
+import subprocess
 
 class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
 
@@ -28,7 +29,8 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         self.preprocessedDataset_directories = Package(types={
             "estados_timeframes":str,
             "afiliados_secuencias":str,
-            "afiliados_secuencias_etiquetadas":str
+            "afiliados_secuencias_etiquetadas":str,
+            "matriz_disimilitud":str
         })
 
         ##########################      
@@ -37,10 +39,7 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         self.affiliatesPractices = None
         self.affiliatesDrugs = None
         self.practicesOfInterest_ids = []
-        self.drugsOfInterest_ids = []
-        
-
-
+        self.drugsOfInterest_ids = []        
 
     #############################################
     ##        DEFINE AND ADD DIRECTORIES       ##
@@ -275,6 +274,17 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         code = format(decimal_value, 'X')  # 'X' is mayuscules
         
         return code
+    
+    def calculate_dissimilarity_matrix(self):
+        '''
+        '''
+        subprocess.run(['Rscript', '../../scripts/optimal_matching.R',
+                            self.preprocessedDataset_directories['afiliados_secuencias'],
+                            self.preprocessedDataset_directories['matriz_disimilitud']],
+                            check=True, capture_output=True, text=True)
+
+        
+        print("DISSIMILARITY MATRIX SAVED IN "+ self.preprocessedDataset_directories['matriz_disimilitud'])
     #                                           #
     ############################################# 
 

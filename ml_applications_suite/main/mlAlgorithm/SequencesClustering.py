@@ -42,15 +42,6 @@ class SequencesClustering(MLAlgorithm):
             }
         )
 
-    def calculate_dissimilarity_matrix(self):
-        '''
-        '''
-        subprocess.run(['Rscript', '../scripts/optimal_matching.R',
-                        self.datasets_directories['afiliados_secuencias'],
-                        self.datasets_directories['matriz_disimilitud']], check=True)
-        
-        print("DISSIMILARITY MATRIX SAVED IN "+ self.datasets_directories['matriz_disimilitud'])
-
     def apply_ML(self):
         '''
         '''
