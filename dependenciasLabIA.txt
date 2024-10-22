@@ -15,6 +15,9 @@ q() --> n
 
 conda install python=3.8
 pip install numpy pandas matplotlib scikit-learn kmedoids seaborn
+pip install streamlit
+pip install plotly
+
 
 
 
