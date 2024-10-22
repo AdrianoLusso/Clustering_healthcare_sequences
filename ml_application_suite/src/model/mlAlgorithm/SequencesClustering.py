@@ -1,24 +1,36 @@
-import logging
-from logging import getLogger
-
 from .MLAlgorithm import MLAlgorithm
 from src.utils.Package import Package
+
+import pandas as pd
+from kmedoids import KMedoids,silhouette
+
 from typing import Union
 from math import sqrt
-
-from kmedoids import KMedoids,silhouette
-from sklearn.metrics import silhouette_samples
-import pandas as pd
 
 import json
 from io import StringIO
 
+import logging
+from logging import getLogger
+
+##################################
+##            LOGGER            ##
+##################################
 l = getLogger()
 l.addHandler(logging.StreamHandler())
 l.setLevel(logging.INFO)
+
+
+
 class SequencesClustering(MLAlgorithm):
     """
     An algorithm for doing sequences clustering.
+
+    Attributes:
+        - datasets (Package)
+            datasets that works as input for the algorithm.
+        - hyperparameters (Package)
+            the algorithm hyperparameters.
     """
 
     def __init__(self) -> None:

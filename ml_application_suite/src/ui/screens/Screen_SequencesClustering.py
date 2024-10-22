@@ -1,11 +1,7 @@
 import sys
 import os
 import threading
-import queue
 
-from altair.vegalite.v5.theme import theme
-from matplotlib.pyplot import xcorr
-from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 ##############################################
 ############## CONFIGURATION ################
@@ -103,7 +99,6 @@ def heatmaps_section():
     groups_range = range(clustering['n_grupos'])
     tabs = st.tabs( ['Grupo '+str(i) for i in groups_range] )
 
-    st.session_state.click_data = [i for i in groups_range]
     for id_group,tab in zip(groups_range,tabs):
         with tab:
             heatmap(id_group,sequences_dataset,clustering)
@@ -140,12 +135,14 @@ def heatmap(id_group,sequences_dataset,clustering):
         )
     )
 
-    st.session_state.click_data[id_group] = plotly_events(fig) # CLICK DATA TO USE MUST BE ONLY 'X' AND 'Y'.
-    if len(st.session_state.click_data[id_group]) > 0:
-        timeframe = st.session_state.click_data[id_group][0]['x']
-        affiliate = st.session_state.click_data[id_group][0]['y']
-        state = hex(sequences_dataset2[affiliate][timeframe])[2:]
+    click_data = plotly_events(fig) # CLICK DATA TO USE MUST BE ONLY 'X' AND 'Y'.
+    st.button(key="timeframe_state_button"+str(id_group),label='Más info.',on_click=timeframe_state_button,args=(id_group,click_data,sequences_dataset2,))
 
+def timeframe_state_button(id_group,click_data,sequences_dataset):
+    timeframe = click_data[0]['x']
+    affiliate = click_data[0]['y']
+    state = hex(sequences_dataset[affiliate][timeframe])[2:]
+    st.session_state.PRUEBA = [id_group,state] # TODO ESTO ERA DE PRUEBA, DPS SE BORRA
 
 ##############################################
 ############## SESSION STATE #################
@@ -211,7 +208,8 @@ with st.sidebar:
 
     st.session_state.result = configuration_submit_button()
 
-st.write(st.session_state)
 if type(st.session_state.result) == dict:
     heatmaps_section()
     download_buttons()
+    st.write(st.session_state)
+

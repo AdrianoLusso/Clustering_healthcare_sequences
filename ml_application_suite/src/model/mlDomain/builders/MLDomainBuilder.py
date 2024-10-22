@@ -1,5 +1,4 @@
 from abc import ABC
-from io import StringIO
 
 class MLDomainBuilder(ABC):
     """
@@ -15,4 +14,5 @@ class MLDomainBuilder(ABC):
             debug (bool): if True, makes some prints for debugging purposes.
         """
         super().__init__()
+        self.product = None
         self.debug = debug

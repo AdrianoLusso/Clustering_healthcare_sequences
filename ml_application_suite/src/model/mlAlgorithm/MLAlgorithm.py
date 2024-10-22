@@ -7,8 +7,10 @@ class MLAlgorithm(ABC):
     Represents and interface for other ML algorithms classes.
 
     Attributes:
-        datasets (dict[str,StringIO]): datasets that works as input for the algorithm.
-        hyperparameters (dict[str,...]): the algorithm hyperparameters.
+        - datasets (Package)
+            datasets that works as input for the algorithm.
+        - hyperparameters (Package)
+            the algorithm hyperparameters.
     """
 
     def __init__(self) -> None:

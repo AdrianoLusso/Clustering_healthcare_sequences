@@ -2,7 +2,6 @@ from .MLDomainBuilder import MLDomainBuilder
 from ..AffiliatesHealthcarePathways import AffiliatesHealthcarePathways
 from src.utils.Package import Package
 
-from pandas import DataFrame
 import numpy as np
 import pandas as pd
 import itertools
@@ -10,8 +9,18 @@ from io import StringIO
 
 import subprocess
 import os
-
 import tempfile
+
+import logging
+from logging import getLogger
+
+##################################
+##            LOGGER            ##
+##################################
+l = getLogger()
+l.addHandler(logging.StreamHandler())
+l.setLevel(logging.INFO)
+
 
 
 class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
@@ -19,21 +28,36 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
     A builder for AffiliatesHealthcarePathways class.
 
     Attributes:
-        - debug (bool): if True, makes some prints for debugging purposes.
-        - rawDataset_affiliatesPractices_directory (Package): saves the raw dataset directory of medical practices taken by the affiliates.
-        - rawDataset_affiliatesDrugs_directory (Package): saves the raw dataset directory of drugs takes by the affiliates.
-        - rawDataset_practicesOfInterest_directories (Package): saves the raw datasets directories of the practices of interest. For each category of practices, a different dataset is used.
-        - rawDataset_drugsOfInterest_directories (Package): saves the raw datasets directories of the drugs of interest. For each category of drugs, a different dataset is used.
-        - preprocessedDataset_directories (Package): saves the directories of the preprocessed datasets.
-        - affiliatesPractices
+        - debug (bool)
+            if True, makes some prints for debugging purposes.
+        - rawDataset_affiliatesPractices (Package)
+            saves the raw dataset of medical practices taken by the affiliates.
+        - rawDataset_affiliatesDrugs (Package)
+            saves the raw dataset of drugs takes by the affiliates.
+        - rawDataset_practicesOfInterest (Package)
+            saves the raw datasets of the practices of interest. For each category of practices, a different dataset is used.
+        - rawDataset_drugsOfInterest (Package)
+            saves the raw datasets of the drugs of interest. For each category of drugs, a different dataset is used.
+        - preprocessedDataset (Package)
+            saves the preprocessed datasets.
+
+        - affiliatesPractices (pd.Dataframe)
+            dataframe where each tuple correspond to an affiliate and a practice consumption. Taken from the corresponding dataset.
         - affiliatesDrugs
-        - practicesOfInterest_ids
-        - drugsOfInterest_ids
-        - timeframe_unity
-        - n_timeframes
-        - sup_date
-        - affiliates
-        - timeframes
+            dataframe where each tuple correspond to an affiliate and a drug consumption. Taken from the corresponding dataset.
+        - practicesOfInterest_ids (list)
+            list of ids of practices of interest
+        - drugsOfInterest_ids (list)
+            list of ids of drugs of interest
+        - timeframe_unity (str)
+            'mes', 'semestre' or 'anio'
+        - n_timeframes (int)
+        - sup_date (str)
+            the last date of the last dataframe. That means, the superior limit date.
+        - affiliates (list)
+            list of ids of affiliates
+        - timeframes (list)
+            list of timeframes
 
 
     """
@@ -41,7 +65,8 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
     def __init__(self,debug:bool) -> None:
         """
         Parameters:
-            debug (bool): if True, makes some prints for debugging purposes.
+            - debug (bool)
+                if True, makes some prints for debugging purposes.
         """
 
         super().__init__(debug)
@@ -68,7 +93,7 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
 
 
         ##########################      
-        #   DATASETS AND INFO    # 
+        #       OTHER INFO       #
         ##########################
         self.affiliatesPractices = None
         self.affiliatesDrugs = None
@@ -87,47 +112,46 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
     def define_rawDataset_affiliatesPractices(self,input_file:dict[str,StringIO]) -> None:
         """
         Saves the raw dataset of medical practices taken by the affiliates.
+
         Args:
-            input_file (dict[str,str]): a dictionary with the expected files.
+            - input_file (dict[str,str])
+                a dictionary with the expected files.
         """
         self.rawDataset_affiliatesPractices.fit(input_file)
 
     def define_rawDataset_affiliatesDrugs(self,input_file:dict[str,StringIO]) -> None:
         """
         Saves the raw dataset directory of drugs taken by the affiliates.
+
         Args:
-            input_file (dict[str,StringIO]): a dictionary with the expected file.
+            - input_file (dict[str,StringIO])
+                a dictionary with the expected file.
         """
         self.rawDataset_affiliatesDrugs.fit(input_file)
 
     def add_rawDataset_practicesOfInterest(self,input_name:str,input_file:StringIO) -> None:
         """
         Add a raw dataset of medical practices taken by the affiliates to be saved.
+
         Args:
-            input_name (str): the name of the category of the medical practices to add.
-            input_file (str): the expected file.
+            -input_name (str)
+                the name of the category of the medical practices to add.
+            -input_file (str)
+                the expected file.
         """
         self.rawDataset_practicesOfInterest[input_name] = input_file
 
     def add_rawDataset_drugsOfInterest(self,input_name:str,input_file:StringIO) -> None :
         """
         Add a raw dataset directory of drugs taken by the affiliates to be saved.
+
         Args:
-            input_name (str): the name of the category of the drugs to add.
-            input_file (StringIO): the expected file.
+            - input_name (str)
+                the name of the category of the drugs to add.
+            - input_file (StringIO)
+                the expected file.
         """
         self.rawDataset_drugsOfInterest[input_name] = input_file
-
-    '''
-    def define_preprocessedDatasets(self,input_file:dict[str,StringIO]) -> None:
-        """
-        Saves the preprocessed datasets directories.
-
-        Args:
-            input_file (dict[str,StringIO]): a dictionary with the expected directory.
-        """
-        self.preprocessedDataset.fit(input_file)
-    '''
     #                                           #
     ############################################# 
 
@@ -142,9 +166,12 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         Saves the time frame properties.
 
         Args:
-            unity (str): the unity size of a timeframe. It could be 'anio', 'semestre' or 'mes'.
-            n (int): number of timeframes per pathway.
-            sup_date (str): the last date of the last dataframe. That means, the superior limit date.
+            - unity (str)
+                the unity size of a timeframe. It could be 'anio', 'semestre' or 'mes'.
+            - n (int)
+                number of timeframes per pathway.
+            - sup_date (str)
+                the last date of the last dataframe. That means, the superior limit date.
         """
         if unity not in AffiliatesHealthcarePathways.timeframe_spanish_to_english.keys():
             raise ValueError("Timeframe unity must be 'mes', 'semestre' or 'anio'")
@@ -240,14 +267,17 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         # filter the tuples between a certain dates interval.
         self.affiliatesDrugs = self.__filter_raw_dataset_by_dates(ad_raw_dataset)
 
-    def __filter_raw_dataset_by_dates(self,raw_dataset) -> DataFrame:
+    def __filter_raw_dataset_by_dates(self,raw_dataset) -> pd.DataFrame:
         """
         This method filters a raw datasets, getting only the tuples between a certain dates interval.
 
         Parameters:
-            raw_dataset (DataFrame): the raw dataset.
+            - raw_dataset (DataFrame)
+                the raw dataset.
 
-        Returns: raw_dataset (DataFrame): the pd dataframe filtered by a dates interval.
+        Returns:
+            - raw_dataset (DataFrame)
+                the pd dataframe filtered by a dates interval.
         """
         # cast 'fecha' attribute to date
         raw_dataset = raw_dataset.copy()
@@ -264,9 +294,6 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         # filter dates outside the interval
         raw_dataset = raw_dataset[raw_dataset['fecha'] < sup_date]
         raw_dataset = raw_dataset[raw_dataset['fecha'] > low_date]
-
-        #filter all the tuples in which its 'id_practica' is not part of the practices of interest
-        #raw_dataset = raw_dataset[raw_dataset['id_practica'].isin(ids)]
 
         return raw_dataset
 
@@ -313,27 +340,11 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
             for timeframe in self.timeframes.values():
                 # initialize a timeframe state structure
                 current_timeframe_state = self.__get_new_timeframe_state()
-                '''
-                # the low and superior dates of the current timeframe
-                low_date = timeframe[0]
-                sup_date = timeframe[1]
-
-                # given an affiliate and a timeframe, we get the practices done by that affiliate in that timeframe
-                practices = ap[
-                        (ap['fecha'] >= low_date)
-                        & (ap['fecha'] < sup_date)
-                        & (ap['id_afiliado'] == affiliate_id)
-                        ]['id_practica']
-                
-                # we use each practice found to change acordingly to the timeframe state data structure
-                # if a practice was found, its corresponding binary value changes to 1
-                for practice in practices:
-                    current_timeframe_state[practice] = 1
-                '''
                 current_timeframe_state = self.__set_timeframe_state(affiliate_id,timeframe,affiliate_datasets,affiliate_datasets_ids,current_timeframe_state)
 
                 # translate the timeframe state to its code and append to the sequence
                 sequence.append(self.__timeframe_state_to_code(list(current_timeframe_state.values())))
+
             # append the resulting sequence to the general data structure
             sequences.append(sequence)
             
@@ -344,6 +355,7 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         columns = ['id_affiliate']+list(self.timeframes.keys())
         data = np.column_stack((np.array(self.affiliates),sequences))
 
+        # save dataframes as StringIOs
         sequences_dataset = pd.DataFrame(data,columns=columns)
         sequences_dataset.to_csv(self.preprocessedDataset['afiliados_secuencias_etiquetadas'],index=False)
         sequences_dataset.drop(columns=['id_affiliate']).to_csv(self.preprocessedDataset['afiliados_secuencias'],index=False)
@@ -368,10 +380,10 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         Given a timeframe state as a binary list, its transform it to its hexadecimal code.
 
         Parameters:
-            semester_state
+            - semester_state
 
         Returns:
-            code
+            - code
         """
         # transform binary list to binary string
         binary_string = ''.join(str(bit) for bit in semester_state)
@@ -387,10 +399,28 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         
         return code
 
-    def __set_timeframe_state(self,affiliate_id,timeframe:list,affiliate_datasets:list[DataFrame],
-                              affiliate_datasets_ids:list,current_timeframe_state:dict) -> dict:
+    def __set_timeframe_state(self
+                              ,affiliate_id
+                              ,timeframe:list
+                              ,affiliate_datasets:list[pd.DataFrame]
+                              ,affiliate_datasets_ids:list
+                              ,current_timeframe_state:dict) -> dict:
         """
+        We set a timeframe state to the particular value it corresponds in function of the affiliate consumptions.
 
+        Args:
+            - affiliate_id
+            - timeframe (list)
+                a list with the initial and final date of a timeframr
+            -affiliate_datasets (list)
+                a list with the affiliate consumptions datasets
+            - affiliate_datasets_ids (list)
+                a list with the consumption id for its corresponding affiliate datasets. Expexted to zip() with affiliat_datasets.
+            - current_timeframe_state (dict)
+
+        Returns:
+            - current_timeframe_state
+                the setted version of the timeframe state
         """
         # the low and superior dates of the current timeframe
         low_date = timeframe[0]
@@ -419,8 +449,6 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
         """
         This method run the R script that calculate the dissimilarity matrix
         """
-        #current_dir = os.path.dirname(os.path.abspath(__file__))
-        #script_dir =  os.path.normpath(os.path.join(current_dir, '/../../scripts/optimal_matching.R'))
         script_dir = os.path.dirname(__file__)+'/../../scripts/optimal_matching.R'
 
         with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.csv') as temp_file:

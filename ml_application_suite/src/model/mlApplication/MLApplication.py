@@ -1,21 +1,41 @@
-from pickle import BUILD
-
 from src.model.mlDomain.builders.AffiliatesHealthcarePathwaysBuilder import AffiliatesHealthcarePathwaysBuilder
 from src.model.mlAlgorithm.SequencesClustering import SequencesClustering
 from src.utils.ProcessState import ProcessState
+
 from io import StringIO
-import threading
-import queue
+
 
 import logging
 from logging import getLogger
 
+##################################
+##            LOGGER            ##
+##################################
 l = getLogger()
 l.addHandler(logging.StreamHandler())
 l.setLevel(logging.INFO)
 
 
 class MLApplication:
+    """
+    Represents an API between for ML algorithms and ML domains, implementing a general workflow of it.
+    It is recommended to use it to decrease the complexity of the programming, and when you don't need
+    to have too specific configuration among the ML workflow.
+
+    Attributes:
+        - parameters (dict)
+            a dictionary where, for each app. method of the class, stores the expected input dictionary of inputs.
+        - all_process_states (dict)
+            a dictionary where, for each app. method of the class, stores all the possible state the app will pass through.
+            Specially useful for concurrent management of the current workflow state from the front-end.
+        - ml_domain (MLDomain)
+        - ml_domain_builder (MLDomainBuilder)
+        - ml_algorithm_builder (MLAlgorithm)
+        - process_state (ProcessState)
+            an object that stores and evolute the current state of the MLApplication.
+
+    """
+
     # THIS STRUCTURE IS FOR THE USER OF THIS CLASS TO KNOW WHICH PARAMETERS TO PASS
     parameters = {
         "affiliatesHealthcarePathways_clustering":
@@ -33,10 +53,6 @@ class MLApplication:
                     "nombre": StringIO,
                     "...": "..."
                 },
-                #"estados_timeframes": 'un directorio',
-                #"afiliados_secuencias": 'un directorio',
-                #"afiliados_secuencias_etiquetadas": 'un directorio',
-
                 "unidad_timeframe": ['mes', 'semestre', 'anio'],
                 "numero_timeframes": int,
                 "fecha_superior_ultimo_timeframe": "ejemplo:2024-07-22",
@@ -48,12 +64,11 @@ class MLApplication:
                 "afiliados_secuencias_etiquetadas": [None, StringIO],
 
                 "n_grupos": [int, "optimizado"],
-                "umbral_de_filtrado_de_grupos": [float, None],
-
-                #"agrupamiento": "un directorio"
+                "umbral_de_filtrado_de_grupos": [float, None]
             }
     }
 
+    # THIS STRUCTURE IS FOR THE USER OF THIS CLASS TO KNOW ALL THE STATE A PARTICULAR STATE PASS THROUGH
     all_process_states = {
         'affiliatesHealthcarePathways_clustering':[
             'processing_datasets',
@@ -76,14 +91,12 @@ class MLApplication:
             'creating_dissimilarity_matrix',
             'running_algorithm'
         ])
-        #self.state_sem = threading.Semaphore(0)
-        #self.lock = threading.Lock()
-        #self.process_state = 'stop'
 
     def run_affiliatesHealthcarePathways_clustering(self, p: dict):
-        '''
-        '''
-        l.info("11111111")
+        """
+
+        """
+
         ##########################################
         #      1. CREATE MLDOMAIN BUILDER        #
         ##########################################
@@ -94,7 +107,6 @@ class MLApplication:
         #   2. ADD PRACTICES/DRUGS OF INTEREST   #
         ##########################################
         a = p.get("practicas_interes", None)
-        l.info("22222")
 
         if a is not None:
             for key, value in a.items():
@@ -107,67 +119,52 @@ class MLApplication:
             BUILDER.read_drugsOfInterest()
 
         ########################################
-        #      ADD AND FILTER THE AFFILIATES   #
+        #           ADD THE AFFILIATES         #
         #  3. CONSUMPTION OF PRACTICES/DRUGS   #
         #               DATASETS               #
         ########################################
-        l.info("3333")
-
         ap = self.__get_subdict(p, ['afiliados_practicas'])
         if ap is not None:
             BUILDER.define_rawDataset_affiliatesPractices(ap)
-            #BUILDER.filter_affiliatesPractices_raw_dataset()
         ad = self.__get_subdict(p, ['afiliados_monodrogas'])
         if ad is not None:
             BUILDER.define_rawDataset_affiliatesDrugs(ad)
-            #BUILDER.filter_affiliatesDrugs_raw_dataset()
 
         ###############################################
-        #  4. DEFINE THE BUILDER RESULTS DIRECTORIES  #
-        ###############################################
-        '''a = self.__get_subdict(p, [
-            "estados_timeframes",
-            "afiliados_secuencias",
-            "afiliados_secuencias_etiquetadas",
-            "matriz_disimilitud"])
-        BUILDER.define_preprocessedDatasets(a)'''
-
-        l.info("444")
-
-        ###############################################
-        #    5. DEFINE OTHER PROPERTIES AND DATA      #
+        #    4. DEFINE OTHER PROPERTIES AND DATA      #
         ###############################################
         u = p['unidad_timeframe']
         n = p['numero_timeframes']
         f = p['fecha_superior_ultimo_timeframe']
-        l.info("AAA")
-
         BUILDER.define_timeframe_properties(u, n, f)
-        l.info("BBB")
 
+        ###############################################
+        #  5. CREATE THE AFFILIATES AND TIMEFRAMES    #
+        ###############################################
         if ap is not None:
-            l.info("CCC")
             BUILDER.filter_affiliatesPractices_raw_dataset()
-            l.info("CCCPASO")
         if ad is not None:
-            l.info("DDD")
             BUILDER.filter_affiliatesDrugs_raw_dataset()
-            l.info("444")
         BUILDER.define_affiliates_and_timeframes()
 
         ###############################################
-        #          6. CREATE THE ML DOMAIN            #
+        #          6. CREATE THE TIMEFRAME            #
+        #               STATES DATASET                #
         ###############################################
         self.process_state.pass_to_next_state()
         BUILDER.create_timeframe_states_dataset()
 
+        ###############################################
+        #          7. CREATE, IF NECESSARY,           #
+        #          THE SEQUENCES DATASET AND          #
+        #          THE DISSIMILARITY MATRIX           #
+        ###############################################
         self.process_state.pass_to_next_state()
         if p['afiliados_secuencias_etiquetadas_precomputada']:
             BUILDER.preprocessedDataset['afiliados_secuencias_etiquetadas'] = p['afiliados_secuencias_etiquetadas']
             BUILDER.preprocessedDataset['afiliados_secuencias'] = p['afiliados_secuencias']
         else:
             BUILDER.create_sequences_dataset()
-        l.info("5555")
 
         self.process_state.pass_to_next_state()
         if p['matriz_disimilitud_precomputada']:
@@ -176,6 +173,9 @@ class MLApplication:
             BUILDER.calculate_dissimilarity_matrix()
         l.info("6666")
 
+        ###############################################
+        #           8. CREATE THE ML DOMAIN           #
+        ###############################################
         ML_DOMAIN = BUILDER.get_final_product()
         estados_timeframes = ML_DOMAIN.datasets['estados_timeframes']
         afiliados_secuencias =  ML_DOMAIN.datasets['afiliados_secuencias']
@@ -184,12 +184,12 @@ class MLApplication:
 
         self.process_state.pass_to_next_state()
         ###############################################
-        #          7. CREATE THE ML ALGORITHM         #
+        #          9. CREATE THE ML ALGORITHM         #
         ###############################################
         ALGORITHM = SequencesClustering()
 
         ###############################################
-        #           8. UPLOAD THE DATASETS            #
+        #           10. UPLOAD THE DATASETS            #
         ###############################################
         result = {
             "estados_timeframes": estados_timeframes,
@@ -200,7 +200,7 @@ class MLApplication:
         ALGORITHM.upload_datasets(result)
 
         ###############################################
-        #          9. DEFINE HYPERPARAMETERS          #
+        #          11. DEFINE HYPERPARAMETERS          #
         ###############################################
         a = self.__get_subdict(p, [
             "n_grupos",
@@ -209,7 +209,7 @@ class MLApplication:
         ALGORITHM.define_hyperparameters(a)
 
         ###############################################
-        #               8. RUN ALGORITHM              #
+        #               12. RUN ALGORITHM              #
         ###############################################
         ALGORITHM.apply_ML()
         clustering = ALGORITHM.get_results()
@@ -229,13 +229,3 @@ class MLApplication:
 
         return d
 
-    '''
-    def set_process_state(self,state):
-        with self.lock:
-            self.process_state = state
-        self.state_sem.release()
-
-    def get_process_state(self):
-        with self.lock:
-            return self.process_state
-    '''
