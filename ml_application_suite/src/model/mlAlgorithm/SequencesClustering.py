@@ -1,8 +1,10 @@
 from .MLAlgorithm import MLAlgorithm
 from src.utils.Package import Package
 
+import numpy as np
 import pandas as pd
 from kmedoids import KMedoids,silhouette
+from sklearn.metrics import silhouette_samples
 
 from typing import Union
 from math import sqrt
@@ -75,6 +77,17 @@ class SequencesClustering(MLAlgorithm):
         silh = silhouette(dissimilarity_matrix,solver.labels_)[0]
 
         #
+        labels = solver.labels_
+        silh_per_label = silhouette_samples(dissimilarity_matrix, labels)
+        silh_per_label = [
+            round(
+                float(np.mean(silh_per_label[labels == label]))
+                ,2
+            )
+            for label in np.unique(labels)
+        ]
+
+        #
         n_sequences_per_cluster = [0  for _ in range(solver.n_clusters)]
         for i in solver.labels_:
             n_sequences_per_cluster[i] += 1
@@ -83,7 +96,6 @@ class SequencesClustering(MLAlgorithm):
         clustering_method = solver.method
         n_clusters_definition_method = "optimizado" if self.hyperparameters['n_grupos'] == 'optimizado' else 'manual'
         n_clusters = solver.n_clusters
-        labels = solver.labels_
         n_sequences_per_label = n_sequences_per_cluster
         loss = solver.inertia_
         medoids = solver.medoid_indices_
@@ -97,6 +109,7 @@ class SequencesClustering(MLAlgorithm):
             'n_secuencias_por_grupo':n_sequences_per_label,
             'perdida':loss,
             'silueta':silh,
+            'silueta_por_grupo':silh_per_label,
             'medoides':medoids.tolist()
         }
         self.clustering = clustering

@@ -1,6 +1,9 @@
+from debugpy.launcher.debuggee import process
+
 from src.model.mlDomain.builders.AffiliatesHealthcarePathwaysBuilder import AffiliatesHealthcarePathwaysBuilder
 from src.model.mlAlgorithm.SequencesClustering import SequencesClustering
 from src.utils.ProcessState import ProcessState
+import traceback
 
 from io import StringIO
 
@@ -63,8 +66,7 @@ class MLApplication:
                 "afiliados_secuencias_etiquetadas_precomputada": bool,
                 "afiliados_secuencias_etiquetadas": [None, StringIO],
 
-                "n_grupos": [int, "optimizado"],
-                "umbral_de_filtrado_de_grupos": [float, None]
+                "n_grupos": [int, "optimizado"]
             }
     }
 
@@ -96,126 +98,130 @@ class MLApplication:
         """
 
         """
+        try:
+            ##########################################
+            #      1. CREATE MLDOMAIN BUILDER        #
+            ##########################################
+            BUILDER = AffiliatesHealthcarePathwaysBuilder(p['debug'])
 
-        ##########################################
-        #      1. CREATE MLDOMAIN BUILDER        #
-        ##########################################
-        BUILDER = AffiliatesHealthcarePathwaysBuilder(p['debug'])
+            self.process_state.pass_to_next_state()
+            ##########################################
+            #   2. ADD PRACTICES/DRUGS OF INTEREST   #
+            ##########################################
+            a = p.get("practicas_interes", None)
 
-        self.process_state.pass_to_next_state()
-        ##########################################
-        #   2. ADD PRACTICES/DRUGS OF INTEREST   #
-        ##########################################
-        a = p.get("practicas_interes", None)
+            if a is not None:
+                for key, value in a.items():
+                    BUILDER.add_rawDataset_practicesOfInterest(key, value)
+                BUILDER.read_practicesOfInterest()
+            a = p.get("monodrogas_interes", None)
+            if a is not None:
+                for key, value in a.items():
+                    BUILDER.add_rawDataset_drugsOfInterest(key, value)
+                BUILDER.read_drugsOfInterest()
 
-        if a is not None:
-            for key, value in a.items():
-                BUILDER.add_rawDataset_practicesOfInterest(key, value)
-            BUILDER.read_practicesOfInterest()
-        a = p.get("monodrogas_interes", None)
-        if a is not None:
-            for key, value in a.items():
-                BUILDER.add_rawDataset_drugsOfInterest(key, value)
-            BUILDER.read_drugsOfInterest()
+            ########################################
+            #           ADD THE AFFILIATES         #
+            #  3. CONSUMPTION OF PRACTICES/DRUGS   #
+            #               DATASETS               #
+            ########################################
+            ap = self.__get_subdict(p, ['afiliados_practicas'])
+            if ap is not None:
+                BUILDER.define_rawDataset_affiliatesPractices(ap)
+            ad = self.__get_subdict(p, ['afiliados_monodrogas'])
+            if ad is not None:
+                BUILDER.define_rawDataset_affiliatesDrugs(ad)
 
-        ########################################
-        #           ADD THE AFFILIATES         #
-        #  3. CONSUMPTION OF PRACTICES/DRUGS   #
-        #               DATASETS               #
-        ########################################
-        ap = self.__get_subdict(p, ['afiliados_practicas'])
-        if ap is not None:
-            BUILDER.define_rawDataset_affiliatesPractices(ap)
-        ad = self.__get_subdict(p, ['afiliados_monodrogas'])
-        if ad is not None:
-            BUILDER.define_rawDataset_affiliatesDrugs(ad)
+            ###############################################
+            #    4. DEFINE OTHER PROPERTIES AND DATA      #
+            ###############################################
+            u = p['unidad_timeframe']
+            n = p['numero_timeframes']
+            f = p['fecha_superior_ultimo_timeframe']
+            BUILDER.define_timeframe_properties(u, n, f)
 
-        ###############################################
-        #    4. DEFINE OTHER PROPERTIES AND DATA      #
-        ###############################################
-        u = p['unidad_timeframe']
-        n = p['numero_timeframes']
-        f = p['fecha_superior_ultimo_timeframe']
-        BUILDER.define_timeframe_properties(u, n, f)
+            ###############################################
+            #  5. CREATE THE AFFILIATES AND TIMEFRAMES    #
+            ###############################################
+            if ap is not None:
+                BUILDER.filter_affiliatesPractices_raw_dataset()
+            if ad is not None:
+                BUILDER.filter_affiliatesDrugs_raw_dataset()
+            BUILDER.define_affiliates_and_timeframes()
 
-        ###############################################
-        #  5. CREATE THE AFFILIATES AND TIMEFRAMES    #
-        ###############################################
-        if ap is not None:
-            BUILDER.filter_affiliatesPractices_raw_dataset()
-        if ad is not None:
-            BUILDER.filter_affiliatesDrugs_raw_dataset()
-        BUILDER.define_affiliates_and_timeframes()
+            ###############################################
+            #          6. CREATE THE TIMEFRAME            #
+            #               STATES DATASET                #
+            ###############################################
+            self.process_state.pass_to_next_state()
+            BUILDER.create_timeframe_states_dataset()
 
-        ###############################################
-        #          6. CREATE THE TIMEFRAME            #
-        #               STATES DATASET                #
-        ###############################################
-        self.process_state.pass_to_next_state()
-        BUILDER.create_timeframe_states_dataset()
+            ###############################################
+            #          7. CREATE, IF NECESSARY,           #
+            #          THE SEQUENCES DATASET AND          #
+            #          THE DISSIMILARITY MATRIX           #
+            ###############################################
+            self.process_state.pass_to_next_state()
+            if p['afiliados_secuencias_etiquetadas_precomputada']:
+                BUILDER.preprocessedDataset['afiliados_secuencias_etiquetadas'] = p['afiliados_secuencias_etiquetadas']
+                BUILDER.preprocessedDataset['afiliados_secuencias'] = p['afiliados_secuencias']
+            else:
+                BUILDER.create_sequences_dataset()
 
-        ###############################################
-        #          7. CREATE, IF NECESSARY,           #
-        #          THE SEQUENCES DATASET AND          #
-        #          THE DISSIMILARITY MATRIX           #
-        ###############################################
-        self.process_state.pass_to_next_state()
-        if p['afiliados_secuencias_etiquetadas_precomputada']:
-            BUILDER.preprocessedDataset['afiliados_secuencias_etiquetadas'] = p['afiliados_secuencias_etiquetadas']
-            BUILDER.preprocessedDataset['afiliados_secuencias'] = p['afiliados_secuencias']
-        else:
-            BUILDER.create_sequences_dataset()
+            self.process_state.pass_to_next_state()
+            if p['matriz_disimilitud_precomputada']:
+                BUILDER.preprocessedDataset['matriz_disimilitud'] = p['matriz_disimilitud']
+            else:
+                BUILDER.calculate_dissimilarity_matrix()
+            l.info("6666")
 
-        self.process_state.pass_to_next_state()
-        if p['matriz_disimilitud_precomputada']:
-            BUILDER.preprocessedDataset['matriz_disimilitud'] = p['matriz_disimilitud']
-        else:
-            BUILDER.calculate_dissimilarity_matrix()
-        l.info("6666")
+            ###############################################
+            #           8. CREATE THE ML DOMAIN           #
+            ###############################################
+            ML_DOMAIN = BUILDER.get_final_product()
+            estados_timeframes = ML_DOMAIN.datasets['estados_timeframes']
+            afiliados_secuencias =  ML_DOMAIN.datasets['afiliados_secuencias']
+            afiliados_secuencias_etiquetadas =  ML_DOMAIN.datasets['afiliados_secuencias_etiquetadas']
+            matriz_disimilitud = ML_DOMAIN.datasets['matriz_disimilitud']
 
-        ###############################################
-        #           8. CREATE THE ML DOMAIN           #
-        ###############################################
-        ML_DOMAIN = BUILDER.get_final_product()
-        estados_timeframes = ML_DOMAIN.datasets['estados_timeframes']
-        afiliados_secuencias =  ML_DOMAIN.datasets['afiliados_secuencias']
-        afiliados_secuencias_etiquetadas =  ML_DOMAIN.datasets['afiliados_secuencias_etiquetadas']
-        matriz_disimilitud = ML_DOMAIN.datasets['matriz_disimilitud']
+            self.process_state.pass_to_next_state()
+            ###############################################
+            #          9. CREATE THE ML ALGORITHM         #
+            ###############################################
+            ALGORITHM = SequencesClustering()
 
-        self.process_state.pass_to_next_state()
-        ###############################################
-        #          9. CREATE THE ML ALGORITHM         #
-        ###############################################
-        ALGORITHM = SequencesClustering()
+            ###############################################
+            #           10. UPLOAD THE DATASETS            #
+            ###############################################
+            result = {
+                "estados_timeframes": estados_timeframes,
+                "afiliados_secuencias": afiliados_secuencias,
+                "afiliados_secuencias_etiquetadas": afiliados_secuencias_etiquetadas,
+                "matriz_disimilitud": matriz_disimilitud
+            }
+            ALGORITHM.upload_datasets(result)
 
-        ###############################################
-        #           10. UPLOAD THE DATASETS            #
-        ###############################################
-        result = {
-            "estados_timeframes": estados_timeframes,
-            "afiliados_secuencias": afiliados_secuencias,
-            "afiliados_secuencias_etiquetadas": afiliados_secuencias_etiquetadas,
-            "matriz_disimilitud": matriz_disimilitud
-        }
-        ALGORITHM.upload_datasets(result)
+            ###############################################
+            #          11. DEFINE HYPERPARAMETERS          #
+            ###############################################
+            a = self.__get_subdict(p, [
+                "n_grupos",
+                "umbral_de_filtrado_de_grupos"
+            ])
+            ALGORITHM.define_hyperparameters(a)
 
-        ###############################################
-        #          11. DEFINE HYPERPARAMETERS          #
-        ###############################################
-        a = self.__get_subdict(p, [
-            "n_grupos",
-            "umbral_de_filtrado_de_grupos"
-        ])
-        ALGORITHM.define_hyperparameters(a)
+            ###############################################
+            #               12. RUN ALGORITHM              #
+            ###############################################
+            ALGORITHM.apply_ML()
+            clustering = ALGORITHM.get_results()
 
-        ###############################################
-        #               12. RUN ALGORITHM              #
-        ###############################################
-        ALGORITHM.apply_ML()
-        clustering = ALGORITHM.get_results()
-
-        result['agrupamiento_secuencias'] = clustering
-        self.process_state.pass_to_next_state()
+            result['agrupamiento_secuencias'] = clustering
+            self.process_state.pass_to_next_state()
+        except:
+            traceback.print_exc()
+            self.process_state.set_fail_state()
+            result = -1
         return result
 
 
