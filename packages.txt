@@ -1,3 +1,4 @@
 r-base
 r-base-dev
 r-cran-rcolorbrewer
+r-cran-vegan
