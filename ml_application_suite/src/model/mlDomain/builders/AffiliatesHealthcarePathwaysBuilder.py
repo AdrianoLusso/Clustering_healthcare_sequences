@@ -14,6 +14,8 @@ import tempfile
 import logging
 from logging import getLogger
 
+import streamlit as st
+
 ##################################
 ##            LOGGER            ##
 ##################################
