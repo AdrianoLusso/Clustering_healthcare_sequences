@@ -11,7 +11,7 @@ sys.path.append(MAIN_DIRECTORY)
 
 script_dir = os.path.dirname(__file__) + '/src/model/scripts/install_traminer.R'
 result=subprocess.run(['Rscript', script_dir],
-                        check=True, capture_output=True, text=True)
+                       check=True, capture_output=True, text=True)
 
 st.write("STDOUT:", result.stdout)
 st.write("STDERR:", result.stderr)
