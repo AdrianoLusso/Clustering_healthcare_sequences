@@ -463,7 +463,7 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
                                 ],
                                 check=True, capture_output=True, text=True)
         except Exception as e:
-            streamlit.write(e.stderr)
+            streamlit.write("sdsdsd")
             
             #result = e
 
