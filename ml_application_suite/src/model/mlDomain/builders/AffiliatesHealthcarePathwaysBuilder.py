@@ -468,7 +468,7 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
             l.info(e.stderr)            
             result = e
         
-        l.info("SIIII")
+        l.info("WATSS")
         l.info(result.stderr)
 
         self.preprocessedDataset['matriz_disimilitud'] = StringIO(result.stdout)
