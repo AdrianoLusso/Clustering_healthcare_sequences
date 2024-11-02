@@ -2,12 +2,13 @@ args <- commandArgs(trailingOnly = TRUE)
 
 input_dir <- args[1]
 
-# Verifica si el archivo de entrada existe
-if (!file.exists(input_dir)) {
-  stop("El archivo de entrada no existe: ", input_dir)
-}
 tryCatch(
-  {
+{
+# Verifica si el archivo de entrada existe
+#if (!file.exists(input_dir)) {
+#  stop("El archivo de entrada no existe: ", input_dir)
+#}
+
 library("TraMineR")
 
 dataset <- read.csv(input_dir)
