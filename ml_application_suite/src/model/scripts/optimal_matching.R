@@ -6,7 +6,8 @@ input_dir <- args[1]
 if (!file.exists(input_dir)) {
   stop("El archivo de entrada no existe: ", input_dir)
 }
-
+tryCatch(
+  {
 library("TraMineR")
 
 dataset <- read.csv(input_dir)
@@ -27,3 +28,7 @@ om = seqdist(sequences,method="OM",indel=1,sm="TRATE")
 om <- om[,-1]
 
 write.csv(om,stdout())
+}, error = function(e) {
+        message("Error': ", e$message)
+        return(e)  # Retorna el objeto de la excepción
+    })
