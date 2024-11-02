@@ -14,7 +14,7 @@ import tempfile
 import logging
 from logging import getLogger
 
-import streamlit as st
+import streamlit
 
 ##################################
 ##            LOGGER            ##
@@ -463,7 +463,8 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
                                 ],
                                 check=True, capture_output=True, text=True)
         except Exception as e:
-            st.write(e)
+            streamlit.write(e)
+            
             #result = e
 
         #st.write("STDERR:", result.stderr)
