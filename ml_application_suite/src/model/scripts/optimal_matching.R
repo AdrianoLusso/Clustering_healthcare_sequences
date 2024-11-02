@@ -9,6 +9,7 @@ tryCatch(
 #  stop("El archivo de entrada no existe: ", input_dir)
 #}
 
+.libPaths("./")
 library("TraMineR")
 
 dataset <- read.csv(input_dir)

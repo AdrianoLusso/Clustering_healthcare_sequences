@@ -1,7 +1,7 @@
 
 if (!requireNamespace("TraMineR", quietly = TRUE)) {
     tryCatch({
-        #.libPaths("./")
+        .libPaths("./")
 
         install.packages("colorspace",lib = "./")
         install.packages("TraMineR", lib = "./")
