@@ -460,7 +460,7 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
                                     temp_file_path
                                 ],
                                 check=True, capture_output=True, text=True)
-        except e:
+        except Exception as e:
             result = e
 
         st.write("STDERR:", result.stderr)
