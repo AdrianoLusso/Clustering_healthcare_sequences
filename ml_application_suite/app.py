@@ -9,8 +9,8 @@ MAIN_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'
 # Add the main directory to sys.path so it can be accessed anywhere
 sys.path.append(MAIN_DIRECTORY)
 
-script_dir = os.path.dirname(__file__) + 'src/model/scripts/install_traminer.R'
-result = subprocess.run(['Rscript', script_dir],
+script_dir = os.path.dirname(__file__) + '/src/model/scripts/install_traminer.R'
+subprocess.run(['Rscript', script_dir],
                         check=True, capture_output=True, text=True)
 
 from src.ui.screens.SequencesClustering import Screen_SequencesClustering
