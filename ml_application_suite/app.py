@@ -13,8 +13,8 @@ script_dir = os.path.dirname(__file__) + '/src/model/scripts/install_traminer.R'
 result=subprocess.run(['Rscript', script_dir],
                         check=True, capture_output=True, text=True)
 
-print("STDOUT:", result.stdout)
-print("STDERR:", result.stderr)
+st.write("STDOUT:", result.stdout)
+st.write("STDERR:", result.stderr)
 
 from src.ui.screens.SequencesClustering import Screen_SequencesClustering
 from src.ui.screens.TimeframesStates import Screen_TimeframesStates
