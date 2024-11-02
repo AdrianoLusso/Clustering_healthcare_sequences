@@ -1,5 +1,8 @@
 if (!requireNamespace("TraMineR", quietly = TRUE)) {
-  #options(repos = c(CRAN = "http://cran.r-project.org"))
-  #install.packages("RColorBrewer")
-    install.packages("TraMineR")
+    tryCatch({
+        install.packages("TraMineR")
+    }, error = function(e) {
+        message("Error al instalar el paquete 'TraMineR': ", e$message)
+        return(e)  # Retorna el objeto de la excepción
+    })
 }
