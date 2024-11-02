@@ -457,19 +457,15 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
             temp_file.write(self.preprocessedDataset['afiliados_secuencias'].getvalue())
             temp_file_path = temp_file.name
 
-        #l.info("PRINCIPIO")
         try:
             result = subprocess.run(['Rscript', script_dir,
                                     temp_file_path
                                 ],
                                 check=True, capture_output=True, text=True)
         except Exception as e:
-            l.info("SIIII")
-            l.info(e.stderr)            
             result = e
         
-        l.info("WATSS")
-        l.info(result.stderr)
+        l.info("ERR: ',result.stderr)
 
         self.preprocessedDataset['matriz_disimilitud'] = StringIO(result.stdout)
 
