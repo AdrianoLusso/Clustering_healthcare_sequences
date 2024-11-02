@@ -17,7 +17,6 @@ try:
 except e:
     result = e
 
-st.write("STDOUT:", result.stdout)
 st.write("STDERR:", result.stderr)
 
 
