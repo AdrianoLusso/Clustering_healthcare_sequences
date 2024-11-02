@@ -457,6 +457,7 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
             temp_file.write(self.preprocessedDataset['afiliados_secuencias'].getvalue())
             temp_file_path = temp_file.name
 
+        l.info("PRINCIPIO")
         try:
             result = subprocess.run(['Rscript', script_dir,
                                     temp_file_path
