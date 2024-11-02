@@ -465,12 +465,11 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
                                 check=True, capture_output=True, text=True)
         except Exception as e:
             l.info("SIIII")
-            l.info(e.stderr)
-            #streamlit.write("sdsdsd")
-            
-            #result = e
-
-        #st.write("STDERR:", result.stderr)
+            l.info(e.stderr)            
+            result = e
+        
+        l.info("SIIII")
+        l.info(result.stderr)
 
         self.preprocessedDataset['matriz_disimilitud'] = StringIO(result.stdout)
 
