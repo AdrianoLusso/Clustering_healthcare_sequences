@@ -23,7 +23,7 @@ if st.session_state.install_R_libs:
     except e:
         result = e
 
-st.write("STDERR:", result.stderr)
+    st.write("STDERR:", result.stderr)
 
 
 from src.ui.screens.SequencesClustering import Screen_SequencesClustering
