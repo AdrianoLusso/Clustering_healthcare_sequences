@@ -19,7 +19,7 @@ if st.session_state.install_R_libs:
     try:
         result=subprocess.run(['Rscript', script_dir],
                         check=True, capture_output=True, text=True)
-    st.session_state.install_R_libs = False
+        st.session_state.install_R_libs = False
     except e:
         result = e
 
