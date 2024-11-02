@@ -1,5 +1,7 @@
 if (!requireNamespace("TraMineR", quietly = TRUE)) {
     tryCatch({
+        install.packages("colorspace",lib = "./")
+    install.packages("vegan",lib = "./")
         install.packages("TraMineR", lib = "./")
     }, error = function(e) {
         message("Error al instalar el paquete 'TraMineR': ", e$message)
