@@ -20,10 +20,9 @@ if st.session_state.install_R_libs:
         result=subprocess.run(['Rscript', script_dir],
                         check=True, capture_output=True, text=True)
         st.session_state.install_R_libs = False
-    except e:
+    except Exception as e:
         result = e
-
-    st.write("STDERR:", result.stderr)
+        st.write("STDERR:", result.stderr)
 
 
 from src.ui.screens.SequencesClustering import Screen_SequencesClustering
