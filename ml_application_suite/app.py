@@ -31,7 +31,7 @@ script_dir = os.path.dirname(__file__) + '/src/model/scripts/install_traminer.R'
 if 'traminer_installed' not in st.session_state:
     st.session_state.traminer_installed = False
 
-if st.session_state.traminer_installed:
+if not st.session_state.traminer_installed:
     try:
         result = subprocess.run(['Rscript', script_dir],
                                 check=True, capture_output=True, text=True)
