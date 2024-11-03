@@ -464,8 +464,7 @@ class AffiliatesHealthcarePathwaysBuilder(MLDomainBuilder):
                                 check=True, capture_output=True, text=True)
         except Exception as e:
             result = e
-        
-        l.info('ERR: ',str(result.stderr))
+            l.info('ERR: ',str(result.stderr[0]))
 
         self.preprocessedDataset['matriz_disimilitud'] = StringIO(result.stdout)
 

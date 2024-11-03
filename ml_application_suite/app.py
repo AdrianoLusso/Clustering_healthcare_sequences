@@ -6,16 +6,13 @@ import streamlit as st
 import logging
 from logging import getLogger
 
+##################################
+##        MAIN DIRECTORY        ##
+##################################
 # Set the main project directory (main folder)
 MAIN_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
-# Add the main directory to sys.path so it can be accessed anywhere
 sys.path.append(MAIN_DIRECTORY)
 
-#script_dir = os.path.dirname(__file__) + '/src/model/scripts/install_traminer.R'
-#if 'install_R_libs' not in st.session_state:
-#    st.session_state.install_R_libs = True
-
-#if st.session_state.install_R_libs:
 
 
 ##################################
@@ -26,16 +23,23 @@ l.addHandler(logging.StreamHandler())
 l.setLevel(logging.INFO)
 script_dir = os.path.dirname(__file__) + '/src/model/scripts/install_traminer.R'
 
+
+
 ##################################
 ##    TRAMINER INSTALLATION     ##
 ##################################
-try:
-    result = subprocess.run(['Rscript', script_dir],
-                            check=True, capture_output=True, text=True)
-    #st.session_state.install_R_libs = False
-except Exception as e:
-    result = e
-    l.info("STDERR:", result.stderr)
+if 'traminer_installed' not in st.session_state:
+    st.session_state.traminer_installed = False
+
+if st.session_state.traminer_installed:
+    try:
+        result = subprocess.run(['Rscript', script_dir],
+                                check=True, capture_output=True, text=True)
+        st.session_state.traminer_installed = True
+    except Exception as e:
+        result = e
+        l.info("STDERR:", result.stderr[0])
+
 
 
 from src.ui.screens.SequencesClustering import Screen_SequencesClustering
