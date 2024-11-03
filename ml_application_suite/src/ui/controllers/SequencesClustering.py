@@ -16,7 +16,9 @@ l.setLevel(logging.INFO)
 
 
 class Controller_SequencesClustering():
+    """
 
+    """
     def __init__(self):
         """
 
@@ -112,7 +114,6 @@ class Controller_SequencesClustering():
             if current_process_state in ['end','fail']:
                 break
         self.app.process_state.initialize()
-
 
     def get_all_process_states(self):
         return self.app.process_state.states_sequence[1:-1]

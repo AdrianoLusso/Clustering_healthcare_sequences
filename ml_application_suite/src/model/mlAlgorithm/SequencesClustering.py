@@ -48,12 +48,10 @@ class SequencesClustering(MLAlgorithm):
 
         self.hyperparameters = Package(
             types={
-            'n_grupos': Union[int,str],
-            'umbral_de_filtrado_de_grupos': Union[float,None]
+            'n_grupos': Union[int,str]
             },
             constraints={
-                'n_grupos': lambda x: (x == 'optimizado' or x > 1),
-                'umbral_de_filtrado_de_grupos': lambda x: (x is None or -1 < x < 1)
+                'n_grupos': lambda x: (x == 'optimizado' or x > 1)
             }
         )
 

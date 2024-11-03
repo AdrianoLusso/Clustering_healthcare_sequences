@@ -2,9 +2,13 @@ from src.ui.components.SequencesClustering import *
 from src.ui.controllers.SequencesClustering import Controller_SequencesClustering
 
 class Screen_SequencesClustering():
+    """
+    This class represents the screen for Healthcare pathways clustering.
+    """
 
     @staticmethod
     def create_Screen_SequencesClustering():
+        """Static method that created a menu and return it"""
         return Screen_SequencesClustering()
 
     def __init__(self):
@@ -12,7 +16,13 @@ class Screen_SequencesClustering():
         self.__plot_screen()
 
     def __plot_screen(self):
+        """
+        The method plots the visual elements of the UI.
+        It mustn't involve complex components control, just the plotting.
+        """
         st.title('Agrupamiento de historiales médicos')
+
+        # this empty block is for having just one element in the main screen
         if 'main_screen_empty_block' not in st.session_state:
             st.session_state.main_screen_empty_block = st.empty()
 
@@ -21,6 +31,7 @@ class Screen_SequencesClustering():
                 st.session_state.parameters['afiliados_practicas'] = st.file_uploader(
                     'Dataset de consumo de practicas por afiliado',
                     type=['csv'])
+
                 st.session_state.parameters['afiliados_monodrogas'] = st.file_uploader(
                     'Dataset de consumo de monodrogas por afiliado',
                     type=['csv'])
@@ -40,7 +51,6 @@ class Screen_SequencesClustering():
                     help='Crear la matriz de disimilitud puede llevar algunos minutos. Si usted ya ha usado los mismos datos de entrada previamente y ha guardado la matriz, puede subirla aquí y acelerar el proceso de cómputo.')
                 st.session_state.parameters['matriz_disimilitud_precomputada'] = st.session_state.parameters['matriz_disimilitud'] is not None
 
-
                 st.session_state.parameters['afiliados_secuencias_etiquetadas'] = st.file_uploader(
                     'Dataset de historiales médicos de afiliados',
                     type=['csv'],
@@ -59,21 +69,21 @@ class Screen_SequencesClustering():
 
             with st.expander('Hyperparámetros'):
                 groups_number_input()
-                st.session_state.parameters['umbral_de_filtrado_de_grupos'] = None # TODO
 
             st.session_state.result, st.session_state.map_data = configuration_submit_handler()
 
-        #st.write(st.session_state)
-
         if type(st.session_state.result) == dict:
             with st.session_state.main_screen_empty_block.container():
-                heatmaps_section()
+                Clusters_panel()
                 st.divider()
                 download_buttons()
         else:
             st.session_state.main_screen_empty_block.info('Complete los datos de entrada e hyperparámetros para obtener un agrupamiento.')
 
     def __init_session_state(self):
+        """
+        This method initialize the session state variables for this screen.
+        """
         if 'result' not in st.session_state:
             st.session_state.result = 0
 

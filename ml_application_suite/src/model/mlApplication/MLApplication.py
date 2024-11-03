@@ -205,8 +205,7 @@ class MLApplication:
             #          11. DEFINE HYPERPARAMETERS          #
             ###############################################
             a = self.__get_subdict(p, [
-                "n_grupos",
-                "umbral_de_filtrado_de_grupos"
+                "n_grupos"
             ])
             ALGORITHM.define_hyperparameters(a)
 
